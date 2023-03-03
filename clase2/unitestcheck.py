@@ -1,0 +1,40 @@
+import unittest
+from Check1 import sender,scanner,checker
+
+
+class PruebasCheck(unittest.TestCase):
+    def test_Checker(self):
+        #Create a test file
+        with open("filepytest.txt","w") as f:
+            f.write("8.8.8.8 \n 192.168.0.1 \n 290.23.13.4 \n 192.168.0.1")
+        #Assert that the scanner is capturing only valid private ip addresses
+        self.assertListEqual(checker(directories=['filepytest.txt']), ['192.168.0.1'])
+        self.assertEqual(len(checker(directories=['filepytest.txt'])),1)
+    def test_scanner(self):
+        #Assert that the scanning is working using google IP
+        self.assertListEqual(scanner(ip_list=["142.250.200.14"]),["142.250.200.14: 80"])
+    def test_sender(self):
+        import base64
+        import paramiko
+        from cryptography.fernet import Fernet
+        #Create a test file 
+        my_list=['testing']
+        #Calls sender function with test file, sender returns fernet object
+        fernet = sender(my_list=my_list)
+        #Create string containing same info as list
+        string = "testing"
+        #retreive encrypted sent file
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect("192.168.0.75", username= "User", password="password123")
+        sftp = ssh.open_sftp()
+        sftp.get("C:\/Users\/User\/infotext","encryptedtext")
+        #Open the file and decrypts its content with the fernet object
+        with open ("encryptedtext", "rb") as f:
+            data=f.read()
+        decrypted = fernet.decrypt(data)
+        #Assert that test string can be correctly decrypted
+        self.assertIn(string,decrypted.decode('utf-8'))
+if __name__== '__main__':
+    unittest.main()
+
