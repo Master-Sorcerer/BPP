@@ -1,0 +1,1 @@
+Need to replace user="User",password="password123" and hostname="192.168.0.75" strings present on all code files with the ones containing your sftp login data to test functionality
